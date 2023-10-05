@@ -22,6 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Guardar en el archivo
         $s = serialize($destinosAnteriores);
         file_put_contents('destinos.dat', $s);
+
+        header('Location: index.php');
+        exit();
     }
 }
 

@@ -1,38 +1,46 @@
 <?php
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+const ARCHIVO_DESTINOS = 'destinos.dat';
+
+if (file_exists(ARCHIVO_DESTINOS)) {
+    $contenidoArchivo = file_get_contents(ARCHIVO_DESTINOS);
+    $destinosAnteriores = unserialize($contenidoArchivo);
+} else {
+    $destinosAnteriores = [];
+}
+
+function guardarDestinos(array $destinos)
+{
+    $contenidoSerializado = serialize($destinos);
+    file_put_contents(ARCHIVO_DESTINOS, $contenidoSerializado);
+}
+
+
+if (isset($_POST['eliminar'])) {
+    $idEliminar = $_POST['eliminar'];
+    array_splice($destinosAnteriores, $idEliminar, 1);
+    guardarDestinos($destinosAnteriores);
+
+
+    // Actualizar la variable $destinos
+    $destinos = $destinosAnteriores;
+} elseif (isset($_POST['destino']) && isset($_POST['fecha']) && isset($_POST['descripcion'])) {
+
     if (isset($_POST['destino'])) {
-        $destino = [
+        $nuevoDestino = [
             'nombre' => $_POST['destino'],
             'fecha' => $_POST['fecha'],
             'descripcion' => $_POST['descripcion'],
         ];
 
-        // Leer datos existentes del archivo
-        $destinosAnteriores = [];
-        if (file_exists('destinos.dat')) {
-            $s = file_get_contents('destinos.dat');
-            $destinosAnteriores = unserialize($s);
-        }
 
-        // Agregar el nuevo destino
-        $destinosAnteriores[] = $destino;
-
-        // Guardar en el archivo
-        $s = serialize($destinosAnteriores);
-        file_put_contents('destinos.dat', $s);
-
-        header('Location: index.php');
-        exit();
+        $destinosAnteriores[] = $nuevoDestino;
+        guardarDestinos($destinosAnteriores);
     }
 }
 
-$destinos = [];
-if (file_exists('destinos.dat')) {
-    $s = file_get_contents('destinos.dat');
-    $destinos = unserialize($s);
-}
+$destinos = file_exists(ARCHIVO_DESTINOS) ? unserialize(file_get_contents(ARCHIVO_DESTINOS)) : [];
+
 ?>
 
 <!DOCTYPE html>
@@ -86,14 +94,23 @@ if (file_exists('destinos.dat')) {
                             <th scope="col">Destino</th>
                             <th scope="col">Fecha de Planificación</th>
                             <th scope="col">Descripción</th>
+                            <th scope="col">Eliminar</th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
-                        <?php foreach ($destinos as $d) : ?>
+                        <?php foreach ($destinos as $key => $value) : ?>
                             <tr>
-                                <td><?= $d['nombre'] ?></td>
-                                <td><?= $d['fecha'] ?></td>
-                                <td><?= $d['descripcion'] ?></td>
+                                <td><?= $value['nombre'] ?></td>
+                                <td><?= $value['fecha'] ?></td>
+                                <td><?= $value['descripcion'] ?></td>
+                                <td>
+                                    <form method="post" action="" id="form-eliminar-<?= $key ?>">
+                                        <input type="hidden" name="eliminar" value="<?= $key ?>">
+                                        <?=var_dump($key);?>
+                                        <button class="btn btn-danger eliminar-destino" data-index="<?= $key ?>" data-nombre="<?= $value['nombre'] ?>">Eliminar</button>
+
+                                    </form>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -102,6 +119,8 @@ if (file_exists('destinos.dat')) {
         </div>
 
     </div>
+    <script src="js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 

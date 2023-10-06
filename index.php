@@ -20,10 +20,6 @@ if (isset($_POST['eliminar'])) {
     $idEliminar = $_POST['eliminar'];
     array_splice($destinosAnteriores, $idEliminar, 1);
     guardarDestinos($destinosAnteriores);
-
-
-    // Actualizar la variable $destinos
-    $destinos = $destinosAnteriores;
 } elseif (isset($_POST['destino']) && isset($_POST['fecha']) && isset($_POST['descripcion'])) {
 
     if (isset($_POST['destino'])) {
@@ -106,7 +102,7 @@ $destinos = file_exists(ARCHIVO_DESTINOS) ? unserialize(file_get_contents(ARCHIV
                                 <td>
                                     <form method="post" action="" id="form-eliminar-<?= $key ?>">
                                         <input type="hidden" name="eliminar" value="<?= $key ?>">
-                                        <?=var_dump($key);?>
+                                        <?= var_dump($key); ?>
                                         <button class="btn btn-danger eliminar-destino" data-index="<?= $key ?>" data-nombre="<?= $value['nombre'] ?>">Eliminar</button>
 
                                     </form>

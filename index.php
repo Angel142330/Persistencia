@@ -1,6 +1,7 @@
 <?php
 
 const ARCHIVO_DESTINOS = 'destinos.dat';
+$errores = [];
 
 if (file_exists(ARCHIVO_DESTINOS)) {
     $contenidoArchivo = file_get_contents(ARCHIVO_DESTINOS);
@@ -22,16 +23,31 @@ if (isset($_POST['eliminar'])) {
     guardarDestinos($destinosAnteriores);
 } elseif (isset($_POST['destino']) && isset($_POST['fecha']) && isset($_POST['descripcion'])) {
 
-    if (isset($_POST['destino'])) {
-        $nuevoDestino = [
-            'nombre' => $_POST['destino'],
-            'fecha' => $_POST['fecha'],
-            'descripcion' => $_POST['descripcion'],
-        ];
+
+    if ($_POST['destino'] == '' || $_POST['fecha'] == '' || $_POST['descripcion'] == '') {
+        $errores['todo'] = 'Todos los campos son olbigatorios';
+        $destino=$_POST['destino'];
+        $fecha=$_POST['fecha'];
+        $descripcion=$_POST['descripcion'];
 
 
-        $destinosAnteriores[] = $nuevoDestino;
-        guardarDestinos($destinosAnteriores);
+    }
+
+
+    if (empty($errores)) {
+
+
+        if (isset($_POST['destino'])) {
+            $nuevoDestino = [
+                'nombre' => $_POST['destino'],
+                'fecha' => $_POST['fecha'],
+                'descripcion' => $_POST['descripcion'],
+            ];
+
+
+            $destinosAnteriores[] = $nuevoDestino;
+            guardarDestinos($destinosAnteriores);
+        }
     }
 }
 
@@ -58,24 +74,25 @@ $destinos = file_exists(ARCHIVO_DESTINOS) ? unserialize(file_get_contents(ARCHIV
             <form method="post" action="" class="p-3">
 
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="destino" id="destinoInput" placeholder="Nuevo destino" autocomplete="off" required>
+                    <input type="text" class="form-control" name="destino" id="destinoInput" placeholder="Nuevo destino" autocomplete="off" value=<?= $destino    ?>   >
                     <label for="destinoInput">Nuevo destino</label>
                 </div>
 
                 <div class="form-floating mb-3">
-                    <input type="date" class="form-control" name="fecha" id="fechaInput" placeholder="Fecha" required>
+                    <input type="date" class="form-control" name="fecha" id="fechaInput" placeholder="Fecha" value=<?= $fecha    ?> >
                     <label for="fechaInput">Fecha de planificación</label>
                 </div>
 
                 <div class="input-group mb-3">
                     <span class="input-group-text ">Descripción</span>
-                    <textarea class="form-control " aria-label="Descripción" name="descripcion" autocomplete="off" required></textarea>
+                    <textarea class="form-control " aria-label="Descripción" name="descripcion" autocomplete="off"  ><?= $descripcion ?></textarea>
                 </div>
 
                 <div class="d-grid">
                     <button class="btn btn-primary mb-2" type="submit">Agregar</button>
                 </div>
 
+                <p style="color: red;"><?= isset($errores['todo']) ?  $errores['todo'] : ''  ?></p>
             </form>
         </div>
 
